@@ -1,0 +1,58 @@
+%sql
+create or replace view dev_rek_doa.gold.vtmp_pm_ro_new as
+select f.SPOLKA_NAZWA_SKROCONA,
+       f.FORMAT_SKLEPU,
+       f.STREFA_SPRZEDAZY,
+       f.ID_SEGMENT,
+       t.SEGMENT,
+       f.EAN_GLOWNY,
+       t.EAN_NAZWA,
+       f.PRODUCENT,
+       f.RANK_OG,
+       f.RANK_OG_PROD,
+       f.DYSTRYBUCJA,
+       f.FACING_POT,
+       f.WSK_IND_SZT,
+       f.WSK_TOP_CENA,
+       f.WSK_TOP_MW,
+       f.SZKIELET_PROD,
+       f.SZKIELET,
+       f.FACING_ZAST_S1 + f.FACING_ZAST_S2 + f.FACING_ZAST_S3 + f.FACING_ZAST_S4 FACING_PROD,
+       f.FACING_ZAST_S5 + f.FACING_ZAST_S6 + f.FACING_ZAST_S7 + f.FACING_ZAST_S8 FACING_DOP,
+       f.FACING_ZAST_S1 + f.FACING_ZAST_S2 + f.FACING_ZAST_S3 + f.FACING_ZAST_S4 
+         + f.FACING_ZAST_S5 + f.FACING_ZAST_S6 + f.FACING_ZAST_S7 + f.FACING_ZAST_S8 FACING_RAZEM
+  from dev_rek_doa.gold.tmp_ro_facing_ss_as8 f
+  join dev_rek_doa.gold.wymiar_towar t on t.EAN_GLOWNY = f.EAN_GLOWNY
+union all
+select f.SPOLKA_NAZWA_SKROCONA,
+       f.FORMAT_SKLEPU,
+       f.STREFA_SPRZEDAZY,
+       f.ID_SEGMENT,
+       t.SEGMENT,
+       f.EAN_GLOWNY,
+       t.EAN_NAZWA,
+       f.PRODUCENT,
+       f.RANK_OG,
+       f.RANK_OG_PROD,
+       f.DYSTRYBUCJA,
+       f.FACING_POT,
+       f.WSK_IND_SZT,
+       null WSK_TOP_CENA,
+       null WSK_TOP_MW,
+       f.SZKIELET_PROD,
+       f.SZKIELET,
+       f.FACING_ZAST_S1 + f.FACING_ZAST_S2 FACING_PROD,
+       f.FACING_ZAST_S3 + f.FACING_ZAST_S4 FACING_DOP,
+       f.FACING_ZAST_S1 + f.FACING_ZAST_S2 + f.FACING_ZAST_S3 + f.FACING_ZAST_S4 FACING_RAZEM
+  from dev_rek_doa.gold.tmp_ro_facing_sk_as4 f
+  join dev_rek_doa.gold.wymiar_towar t on t.EAN_GLOWNY = f.EAN_GLOWNY;
+
+
+select * 
+  from dev_rek_doa.gold.vtmp_pm_ro_new
+ where SPOLKA_NAZWA_SKROCONA in ('RAZ')
+   and STREFA_SPRZEDAZY = 'sala sprzedaży'
+   and FORMAT_SKLEPU = 'C'
+   and SEGMENT in ('MLEKO ŚWIEŻE')
+   and FACING_RAZEM > 0
+
